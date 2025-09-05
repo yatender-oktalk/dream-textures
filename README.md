@@ -79,3 +79,94 @@ Features and feedback are also accepted on the issues page. If you have any issu
 
 The [Dream Textures Discord server](https://discord.gg/EmDJ8CaWZ7) also has a common issues list and strong community of helpful people, so feel free to come by for some help there as well.
 
+
+
+## How to setup the script based image generation
+
+You can generate images using Dream Textures without Blender by running a Python script directly. This is useful for automation, headless servers, or integrating with other tools.
+
+### 1. Install requirements
+
+Make sure you have Python 3.8+ and install the required packages:
+
+```sh
+pip install diffusers torch numpy pillow
+```
+
+### 2. Prepare the script
+
+Use the provided script at `tests/__main__.py` as a template. Example:
+
+```python
+from PIL import Image
+from dream_textures.generator_process.actions.prompt_to_image import prompt_to_image
+from dream_textures.generator_process.models import Optimizations, Scheduler
+
+prompt = "A fantasy castle on a hill"
+model = "CompVis/stable-diffusion-v1-4"  # or another supported model
+output_path = "output.png"
+steps = 30
+width = 512
+height = 512
+seed = 42
+cfg_scale = 7.5
+
+optimizations = Optimizations()
+scheduler = Scheduler("DDIM")
+
+gen = prompt_to_image(
+    None,
+    model=model,
+    scheduler=scheduler,
+    optimizations=optimizations,
+    prompt=prompt,
+    steps=steps,
+    width=width,
+    height=height,
+    seed=seed,
+    cfg_scale=cfg_scale,
+    use_negative_prompt=False,
+    negative_prompt="",
+    seamless_axes=None,
+    iterations=1,
+    step_preview_mode=None
+)
+
+future = next(gen)
+future.set_done()
+result = future.result()
+
+img_np = result[0] if isinstance(result, list) and len(result) > 0 else result
+img = Image.fromarray(img_np.astype("uint8"))
+img.save(output_path)
+print(f"Image saved to {output_path}")
+```
+
+### 3. Run the script
+
+From the project root directory, run:
+
+```sh
+PYTHONPATH=. python tests/__main__.py
+```
+
+Or, if you want to use the module runner:
+
+```sh
+PYTHONPATH=. python -m tests
+```
+
+### 4. Output
+
+The generated image will be saved as `output.png` in your current directory.
+
+**Tip:**
+- For SD 2.1-base, use 768x768 resolution. For v1 models, use 512x512.
+- You can change the prompt, model, and other parameters in the script.
+
+**Important:**
+- Before running the script, set the Blender version environment variable:
+  ```sh
+  export BLENDER_VERSION=4.5.0
+  ```
+- Always run the script from the project root directory (not from inside the `tests` folder), so Python can find the `dream_textures` package.

@@ -46,8 +46,8 @@ if has_bpy:
     os.environ["BLENDER_OCIO_CONFIG"] = OCIO_CONFIG
 else:
     # backend
-    BLENDER_VERSION = tuple(int(x) for x in os.environ["BLENDER_VERSION"].split("."))
-    OCIO_CONFIG = os.environ["BLENDER_OCIO_CONFIG"]
+        BLENDER_VERSION = tuple(int(x) for x in os.environ.get("BLENDER_VERSION", "4.5.0").split("."))
+        OCIO_CONFIG = os.environ.get("BLENDER_OCIO_CONFIG", "")
 
 if TYPE_CHECKING:
     import bpy

@@ -1,28 +1,32 @@
+import sys
+from typing import Callable, List, Tuple
+from ..models.generation_arguments import GenerationArguments
+from ..models.generation_result import GenerationResult
+from ..models.model import Model
+
 try:
     import bpy
-    from typing import Callable, List, Tuple
-    from ..models.generation_arguments import GenerationArguments
-    from ..models.generation_result import GenerationResult
-    from ..models.model import Model
+    _HAS_BPY = True
+except ImportError:
+    _HAS_BPY = False
 
-    StepCallback = Callable[[List[GenerationResult]], bool]
-    Callback = Callable[[List[GenerationResult] | Exception], None]
+StepCallback = Callable[[List[GenerationResult]], bool]
+Callback = Callable[[List[GenerationResult] | Exception], None]
 
+if _HAS_BPY:
     class Backend(bpy.types.PropertyGroup):
-        """A backend for Dream Textures.
+        """
+        A backend for Dream Textures.
 
-        Provide the following methods to create a valid backend.
+        Provide the following methods to create a valid backend:
 
-        ```python
-        def list_models(self) -> List[Model]
-        def generate(
-            self,
-            arguments: GenerationArguments,
-
-            step_callback: StepCallback,
-            callback: Callback
-        )
-        ```
+            def list_models(self) -> List[Model]
+            def generate(
+                self,
+                arguments: GenerationArguments,
+                step_callback: StepCallback,
+                callback: Callback
+            )
         """
 
         @classmethod
@@ -55,16 +59,16 @@ try:
             return cls.__subclasses__()
 
         def list_models(self, context) -> List[Model]:
-            """Provide a list of available models.
-            
-            The `id` of the model will be provided.
+            """
+            Provide a list of available models.
+            The id of the model will be provided.
             """
             ...
         
         def list_controlnet_models(self, context) -> List[Model]:
-            """Provide a list of available ControlNet models.
-
-            The `id` of the model will be provided.
+            """
+            Provide a list of available ControlNet models.
+            The id of the model will be provided.
             """
             return []
         
@@ -139,5 +143,3 @@ try:
             ```
             """
             ...
-except:
-    pass
